@@ -13,10 +13,11 @@ import parsel
 save_path = './fanqie/'
 # #要命名的文件名
 name = 'data.csv'
+#用来处理排行榜的
 filename = save_path+name
 # #目标url of 番茄巅峰榜
 # url = 'https://fanqienovel.com/api/author/misc/top_book_list/v1/?limit=200&offset=0&a_bogus=QysQfcZTMsm17jVEl7ke9aJm32R0YWR-gZEFKy4r-0Ll'
-#headers
+#headers报错需要自己改改cookie和其他的
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0'
     ,'cookie':'csrf_session_id=ecc1986ed4e8cdfe3a06dfe01285fa8e; s_v_web_id=verify_ly3qomo2_YbogndOi_P9uK_4NB6_8CYW_FsTfqhp6OoPd; novel_web_id=7386846545851434505; ttwid=1%7C-n-jiMa0TuCOPkCYZwrd8_Xpn9Nc2YovLKk8V4ONXv4%7C1719884402%7Cd4e110824fc3fa733e5b77bb41293daff10fc51e14be1376f440e2bb0ccc9dee; msToken=acpdNP7HJyaV7GUMudUbSdsV5y4n-xa-jGbYWEY6uBw4byUx-XT7UcAgrYzTiJeOeUCboYYpJa5o1geUcUzP-z9U12Hb9rAcP9VgxET_'
@@ -30,7 +31,7 @@ def get_book_dict(url):
     book_dict = json.loads(r.text)
     return book_dict
 
-#把数据写入csv文件
+#把数据写入csv文件，这个是适用于首页的（无需解密）
 def save_csv(book_dict, save_path='./fanqie/',name='data.csv'):
     if not os.path.exists(save_path):
         os.mkdir(save_path)
@@ -44,6 +45,7 @@ def save_csv(book_dict, save_path='./fanqie/',name='data.csv'):
             f.write(book['book_name']+','+book['author']+','+book['category']+','+book['book_id']+','+book['rank_score']+','+book['thumb_url']+'\n')
                 # print("写入csv文件完成")
     return 1
+#保存排行榜数据的csv
 def save_csv_phb(book_dict, save_path='./fanqie/',name='data.csv'):
     if not os.path.exists(save_path):
         os.mkdir(save_path)
@@ -57,6 +59,8 @@ def save_csv_phb(book_dict, save_path='./fanqie/',name='data.csv'):
             f.write(book['book_name']+','+book['author']+','+book['abstract']+','+book['book_id']+','+book['read_count']+','+book['thumb_url']+'\n')
                 # print("写入csv文件完成")
     return 1
+
+#筛选数据，分析小说类型和数量
 def Type_Summary(filename):
     # 导出“类型”一列的数据
     data = pd.read_csv(filename)
@@ -77,6 +81,7 @@ def Type_Summary(filename):
     # print(data_Type_Counts)
     return data_Type_Counts
 
+#绘图分析小说类型
 def Draw_BarChrat(data_Type_Counts):
     config = {
         "font.family": 'serif',
@@ -103,7 +108,8 @@ def Draw_BarChrat(data_Type_Counts):
     plt.show()
     result = round(float(counts[-1]) * 100 / 30, 2)
     print(f"\n当代书友阅读类型最多的是", types[-1], "占比：", result, "%\n")
-    #解密排行榜的字典
+    return 1
+#解密排行榜的字典
 dict_data_phb={
     '58544':'0',
     '58703':'1',
@@ -833,6 +839,8 @@ dict_data2_xs = {
         '58591': '条',
         '58682': '呢'
     }
+
+#用于获取response后返回解密的response
 def get_request(url,headers,dict_data):
 
     r = requests.get(url, headers=headers)
@@ -863,12 +871,12 @@ def show_books(j1,page_count):
             print("巅峰值：",jsonpath(j1, '$..book_list[%d].rank_score' % i)[0],"\n")
 
 #把小说封面爬取下来
-def download_books_images(book_dict, headers, save_path='./fanqie/'):
+def download_books_images(j1, headers, save_path='./fanqie/'):
     # 确保保存目录存在
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    for book in jsonpath(book_dict, '$..book_list[*]'):
+    for book in jsonpath(j1, '$..book_list[*]'):
         try:
             # 构建完整的文件保存路径
             file_path = os.path.join(save_path, f"{book['book_name']}.png")
@@ -887,14 +895,15 @@ def download_books_images(book_dict, headers, save_path='./fanqie/'):
             # 显式关闭响应对象
             response.close()
             print(f"{book['book_name']}图片下载完成")
-#保存小说图片
-def save_book_img(book_dict,j,save_path='./fanqie/'):
+
+#保存小说图片（未加密的类型）
+def save_book_img(j1,j,save_path='./fanqie/'):
     j = str(j)
     # 确保保存目录存在
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    for book in jsonpath(book_dict, '$..book_list['+j+']'):
+    for book in jsonpath(j1, '$..book_list['+j+']'):
         # 构建完整的文件保存路径
         file_path = os.path.join(save_path, f"{book['book_name']}.png")
 
@@ -908,11 +917,11 @@ def save_book_img(book_dict,j,save_path='./fanqie/'):
             print(f"{book['book_name']}图片下载完成")
 
 #保存小说内容
-def save_book_text(book_dict,j,save_path='./fanqie/'):
+def save_book_text(j1,j,save_path='./fanqie/'):
     print("正在下载小说内容...")
     j = str(j)
     # url地址(小说主页)
-    id = jsonpath(book_dict, '$..book_list['+j+'].book_id')[0]
+    id = jsonpath(j1, '$..book_list['+j+'].book_id')[0]
     id = str(id)
     urls = 'https://fanqienovel.com/page/'+id+'?enter_from=stack-room'
     # print(urls)
@@ -963,7 +972,8 @@ def save_book_text(book_dict,j,save_path='./fanqie/'):
             f.write('\n\n')
     print(name,"小说下载完成")
     return 1
-#
+
+#主函数路口
 if __name__ == '__main__':
 
     urli = 'https://fanqienovel.com/api/author/misc/top_book_list/v1/?limit=200&offset=0&a_bogus=QysQfcZTMsm17jVEl7ke9aJm32R0YWR-gZEFKy4r-0Ll'
@@ -994,21 +1004,17 @@ if __name__ == '__main__':
                 #番茄巅峰榜
                 urli = 'https://fanqienovel.com/api/author/misc/top_book_list/v1/?limit='+page_count+'&offset=0&a_bogus=QysQfcZTMsm17jVEl7ke9aJm32R0YWR-gZEFKy4r-0Ll'
                 j1 = json.loads(requests.get(urli, headers=headers).text)
-                # print(urli)
             elif n2 == '2':
                 # 最热榜
                 urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count='+page_count+'&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=0&a_bogus=EJBQfcZOMsm1uf3kUhke9GUmD%2FR0YW-EgZENKgHrw0wj'
-                # print(urli)
                 j1 = get_request(urli, headers,dict_data_phb)
             elif n2 == '3':
                 # 最新榜
                 urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count=' + page_count + '&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=1&a_bogus=dyBDfcZOMsm1Rf3kYXke9b4mD%2Fj0YWRagZENKsNG30on'
-                # print(urli)
                 j1 = get_request(urli, headers,dict_data_phb)
             elif n2 == '4':
                 # 字数榜
                 urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count='+page_count+'&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=2&a_bogus=my4O6cZOMsm1vE3kYhke9CUmDhR0YWR6gZENKswpR0qH'
-                # print(urli)
                 j1 = get_request(urli, headers,dict_data_phb)
             else :
                 exit()
