@@ -8,6 +8,10 @@ import requests
 import json
 from matplotlib import rcParams
 import parsel
+import jieba
+from wordcloud import WordCloud
+from PIL import Image
+import numpy as np
 
 #保存路径
 save_path = './fanqie/'
@@ -973,6 +977,10 @@ def save_book_text(j1,j,save_path='./fanqie/'):
     print(name,"小说下载完成")
     return 1
 
+#读取小说文本
+def text_segmentation(texts):
+    cut_words = jieba.cut(texts)
+    return ' '.join(cut_words)
 #功能1
 def ui1(save_path='./fanqie/'):
     urli = 'https://fanqienovel.com/api/author/misc/top_book_list/v1/?limit=200&offset=0&a_bogus=QysQfcZTMsm17jVEl7ke9aJm32R0YWR-gZEFKy4r-0Ll'
@@ -1061,6 +1069,57 @@ def ui3(save_path='./fanqie/'):
     else:
         return 1
 
+#功能4
+def ui4(save_path='./fanqie/'):
+    k1 = input("请输入小说所在文件夹路径，回车键默认：\n")
+    name = input("请输入小说名称：\n")
+    if k1 != '':
+        save_path = k1
+    font_path = 'C:/Windows/Fonts/FZSTK.TTF'
+    try:
+        # 读取文本文件内容
+        with open(save_path + name + '.txt', 'r', encoding='utf-8') as file:
+            text = file.read()
+
+        # 分词处理
+        segmented_text = text_segmentation(text)
+
+        # 加载背景图片
+        img = Image.open(save_path + name + '.png')
+        img_array = np.array(img)
+        stopword_path = './fanqie/stopwords_cn.txt'
+        k3 = input("请输入停用词路径(包括文件名)回车键默认：\n")
+        if k3 != '':
+            stopword_path = k3
+        # 设置停止词列表，这里仅作为示例，实际应包含更多词语
+        with open(stopword_path, "r", encoding="utf-8") as f:
+            stop_words = f.read().splitlines()
+        # 初始化词云对象
+        wc = WordCloud(
+            background_color='white',
+            width=1000,
+            height=800,
+            mask=img_array,
+            font_path=font_path,
+            stopwords=stop_words
+        )
+
+        # 生成词云
+        wc.generate_from_text(segmented_text)
+
+        # 显示词云图
+        plt.figure(figsize=(10, 8))
+        plt.imshow(wc, interpolation='bilinear')
+        plt.axis('off')  # 不显示坐标轴
+        plt.show()
+
+        # 可选择保存图片
+        # wc.to_file(save_path + r'\beautifulcloud.png')
+    except FileNotFoundError:
+        print(f"文件未找到，请检查路径：{save_path}")
+    except Exception as e:
+        print(f"发生错误：{e}")
+
 #主函数路口
 if __name__ == '__main__':
     save_path = './fanqie/'
@@ -1069,6 +1128,7 @@ if __name__ == '__main__':
                       "1.分析当代书友的阅读风格\n"
                       "2.查看书库排行榜\n"
                       "3.一键爬取功能\n"
+                       "4.词频统计功能\n"
                       " 其他.退出本程序\n"))
         if n1 == 1:
             ui1()
@@ -1076,6 +1136,7 @@ if __name__ == '__main__':
             ui2()
         elif n1==3:
             ui3()
-
+        elif n1==4:
+            ui4()
         else:
             exit()
