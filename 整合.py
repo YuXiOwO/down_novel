@@ -973,8 +973,97 @@ def save_book_text(j1,j,save_path='./fanqie/'):
     print(name,"小说下载完成")
     return 1
 
+#功能1
+def ui1(save_path='./fanqie/'):
+    urli = 'https://fanqienovel.com/api/author/misc/top_book_list/v1/?limit=200&offset=0&a_bogus=QysQfcZTMsm17jVEl7ke9aJm32R0YWR-gZEFKy4r-0Ll'
+    book_dict= get_book_dict(urli)
+    save_path = './fanqie/'
+    name = 'data.csv'
+    filename = save_path + name
+    save_csv(book_dict, save_path,name)
+    data_Type_Counts =Type_Summary(filename)
+    Draw_BarChrat(data_Type_Counts)
+
+#功能2
+def ui2(save_path='./fanqie/'):
+    n2 = input("请输入要查看的排行榜类型：\n"
+               "1.番茄巅峰榜\n"
+               "2.番茄最热榜\n"
+               "3.番茄最新榜\n"
+               "4.番茄字数榜\n"
+               "其他.返回上一层\n")
+    page_count = input("请输入要查看的书籍数量：\n")
+    if n2 == '1':
+        # 番茄巅峰榜
+        urli = 'https://fanqienovel.com/api/author/misc/top_book_list/v1/?limit=' + page_count + '&offset=0&a_bogus=QysQfcZTMsm17jVEl7ke9aJm32R0YWR-gZEFKy4r-0Ll'
+        j1 = json.loads(requests.get(urli, headers=headers).text)
+    elif n2 == '2':
+        # 最热榜
+        urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count=' + page_count + '&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=0&a_bogus=EJBQfcZOMsm1uf3kUhke9GUmD%2FR0YW-EgZENKgHrw0wj'
+        j1 = get_request(urli, headers, dict_data_phb)
+    elif n2 == '3':
+        # 最新榜
+        urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count=' + page_count + '&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=1&a_bogus=dyBDfcZOMsm1Rf3kYXke9b4mD%2Fj0YWRagZENKsNG30on'
+        j1 = get_request(urli, headers, dict_data_phb)
+    elif n2 == '4':
+        # 字数榜
+        urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count=' + page_count + '&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=2&a_bogus=my4O6cZOMsm1vE3kYhke9CUmDhR0YWR6gZENKswpR0qH'
+        j1 = get_request(urli, headers, dict_data_phb)
+    else:
+        return 1
+    show_books(j1, page_count)
+    j = input("请输入要下载的书籍序号：")
+    k1 = input("请输入存储路径回车键默认：\n")
+    if k1 != '':
+        save_path = k1
+    jc = int(j)
+    if jc > 0 and jc <= int(page_count):
+        save_book_img(j1, jc - 1, save_path)
+        # print(j1)
+        save_book_text(j1, jc - 1, save_path)
+    elif int(j) == '0':
+        return 1
+    else:
+        print("输入错误！")
+    return 1
+
+#功能3
+def ui3(save_path='./fanqie/'):
+    n4 = input("请输入要爬取的榜单\n"
+               "1.番茄巅峰榜\n"
+               "2.番茄最热榜\n"
+               "3.番茄最新榜\n"
+               "4.番茄字数榜\n"
+               "其他返回上一层\n")
+    k2 = input("请输入存储路径回车键默认：\n")
+    if k2 != '':
+        save_path = k2
+    if n4 == '1':
+        urli = 'https://fanqienovel.com/api/author/misc/top_book_list/v1/?limit=200&offset=0&a_bogus=QysQfcZTMsm17jVEl7ke9aJm32R0YWR-gZEFKy4r-0Ll'
+        j1 = json.loads(requests.get(urli, headers=headers).text)
+        download_books_images(j1, headers, save_path)
+        save_csv(j1, save_path, '番茄巅峰榜.csv')
+    if n4 == '2':
+        urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count=30&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=0&a_bogus=EJBQfcZOMsm1uf3kUhke9GUmD%2FR0YW-EgZENKgHrw0wj'
+        j1 = get_request(urli, headers, dict_data_phb)
+        download_books_images(j1, headers, save_path)
+        save_csv_phb(j1, save_path, '番茄最热.csv')
+    if n4 == '3':
+        urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count=30&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=1&a_bogus=dyBDfcZOMsm1Rf3kYXke9b4mD%2Fj0YWRagZENKsNG30on'
+        j1 = get_request(urli, headers, dict_data_phb)
+        download_books_images(j1, headers, save_path)
+        save_csv_phb(j1, save_path, '番茄最新榜.csv')
+    if n4 == '4':
+        urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count=30&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=2&a_bogus=my4O6cZOMsm1vE3kYhke9CUmDhR0YWR6gZENKswpR0qH'
+        j1 = get_request(urli, headers, dict_data_phb)
+        download_books_images(j1, headers, save_path)
+        save_csv_phb(j1, save_path, '番茄字数榜.csv')
+    else:
+        return 1
+
 #主函数路口
 if __name__ == '__main__':
+    save_path = './fanqie/'
     while True:
         n1 = int(input("请输入功能序号：\n"
                       "1.分析当代书友的阅读风格\n"
@@ -982,88 +1071,11 @@ if __name__ == '__main__':
                       "3.一键爬取功能\n"
                       " 其他.退出本程序\n"))
         if n1 == 1:
-            urli = 'https://fanqienovel.com/api/author/misc/top_book_list/v1/?limit=200&offset=0&a_bogus=QysQfcZTMsm17jVEl7ke9aJm32R0YWR-gZEFKy4r-0Ll'
-            book_dict= get_book_dict(urli)
-            save_path = './fanqie/'
-            name = 'data.csv'
-            filename = save_path + name
-            save_csv(book_dict, save_path,name)
-            data_Type_Counts =Type_Summary(filename)
-            Draw_BarChrat(data_Type_Counts)
+            ui1()
         elif n1 == 2:
-            n2=input("请输入要查看的排行榜类型：\n"
-                  "1.番茄巅峰榜\n"
-                  "2.番茄最热榜\n"
-                  "3.番茄最新榜\n"
-                  "4.番茄字数榜\n"
-                  "其他.返回上一层\n")
-            page_count = input("请输入要查看的书籍数量：\n")
-            if n2 == '1':
-                #番茄巅峰榜
-                urli = 'https://fanqienovel.com/api/author/misc/top_book_list/v1/?limit='+page_count+'&offset=0&a_bogus=QysQfcZTMsm17jVEl7ke9aJm32R0YWR-gZEFKy4r-0Ll'
-                j1 = json.loads(requests.get(urli, headers=headers).text)
-            elif n2 == '2':
-                # 最热榜
-                urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count='+page_count+'&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=0&a_bogus=EJBQfcZOMsm1uf3kUhke9GUmD%2FR0YW-EgZENKgHrw0wj'
-                j1 = get_request(urli, headers,dict_data_phb)
-            elif n2 == '3':
-                # 最新榜
-                urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count=' + page_count + '&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=1&a_bogus=dyBDfcZOMsm1Rf3kYXke9b4mD%2Fj0YWRagZENKsNG30on'
-                j1 = get_request(urli, headers,dict_data_phb)
-            elif n2 == '4':
-                # 字数榜
-                urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count='+page_count+'&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=2&a_bogus=my4O6cZOMsm1vE3kYhke9CUmDhR0YWR6gZENKswpR0qH'
-                j1 = get_request(urli, headers,dict_data_phb)
-            else :
-                continue
-            show_books(j1,page_count)
-            j = input("请输入要下载的书籍序号：")
-            k1 = input("请输入存储路径回车键默认：\n")
-            if k1 != '':
-                save_path = k1
-            jc = int(j)
-            if jc > 0 and jc <= int(page_count):
-                save_book_img(j1,jc-1,save_path)
-                # print(j1)
-                save_book_text(j1,jc-1,save_path)
-            elif int(j) == '0':
-                continue
-            else:
-                print("输入错误！")
-            continue
+            ui2()
         elif n1==3:
+            ui3()
 
-            n4 = input("请输入要爬取的榜单\n"
-                          "1.番茄巅峰榜\n"
-                          "2.番茄最热榜\n"
-                          "3.番茄最新榜\n"
-                          "4.番茄字数榜\n"
-                            "其他返回上一层\n")
-            k2 = input("请输入存储路径回车键默认：\n")
-            if k2 != '':
-                save_path = k2
-            if n4 == '1':
-                urli = 'https://fanqienovel.com/api/author/misc/top_book_list/v1/?limit=200&offset=0&a_bogus=QysQfcZTMsm17jVEl7ke9aJm32R0YWR-gZEFKy4r-0Ll'
-                j1 = json.loads(requests.get(urli, headers=headers).text)
-                download_books_images(j1, headers, save_path)
-                save_csv(j1,save_path,'番茄巅峰榜.csv')
-            if n4 == '2':
-                urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count=30&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=0&a_bogus=EJBQfcZOMsm1uf3kUhke9GUmD%2FR0YW-EgZENKgHrw0wj'
-                j1 = get_request(urli, headers, dict_data_phb)
-                download_books_images(j1, headers, save_path)
-                save_csv_phb(j1,save_path,'番茄最热.csv')
-            if n4 == '3':
-                urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count=30&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=1&a_bogus=dyBDfcZOMsm1Rf3kYXke9b4mD%2Fj0YWRagZENKsNG30on'
-                j1 = get_request(urli, headers, dict_data_phb)
-                download_books_images(j1, headers, save_path)
-                save_csv_phb(j1,save_path,'番茄最新榜.csv')
-            if n4 == '4':
-                urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count=30&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=2&a_bogus=my4O6cZOMsm1vE3kYhke9CUmDhR0YWR6gZENKswpR0qH'
-                j1 = get_request(urli, headers, dict_data_phb)
-                download_books_images(j1, headers, save_path)
-                save_csv_phb(j1,save_path,'番茄字数榜.csv')
-            else:
-                continue
         else:
-            input("输入任意键退出")
             exit()
