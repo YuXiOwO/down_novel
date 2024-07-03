@@ -1,3 +1,4 @@
+#导入需要的模块
 import re
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -6,17 +7,17 @@ from jsonpath import jsonpath
 import requests
 import json
 from matplotlib import rcParams
-# 导入数据解析模块
 import parsel
 
 #保存路径
 save_path = './fanqie/'
+
 # #要命名的文件名
 name = 'data.csv'
+
 #用来处理排行榜的
 filename = save_path+name
-# #目标url of 番茄巅峰榜
-# url = 'https://fanqienovel.com/api/author/misc/top_book_list/v1/?limit=200&offset=0&a_bogus=QysQfcZTMsm17jVEl7ke9aJm32R0YWR-gZEFKy4r-0Ll'
+
 #headers报错需要自己改改cookie和其他的
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0'
@@ -54,9 +55,9 @@ def save_csv_phb(book_dict, save_path='./fanqie/',name='data.csv'):
     except:
         pass
     with open(save_path+name,'a',encoding='utf-8',newline='') as f:
-        f.write('书名,作者,作品简述,ID,阅读量,封面链接\n')
+        f.write('书名,作者,ID,阅读量,封面链接\n')
         for book in jsonpath(book_dict, '$..book_list[*]'):
-            f.write(book['book_name']+','+book['author']+','+book['abstract']+','+book['book_id']+','+book['read_count']+','+book['thumb_url']+'\n')
+            f.write(book['book_name']+','+book['author']+','+book['book_id']+','+book['read_count']+','+book['thumb_url']+'\n')
                 # print("写入csv文件完成")
     return 1
 
