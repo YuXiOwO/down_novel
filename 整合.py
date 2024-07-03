@@ -78,7 +78,6 @@ def Type_Summary(filename):
             counts[i] = counts.get(i, 0) + 1
     # 词频排序
     data_Type_Counts = sorted(counts.items(), key=lambda x: x[1], reverse=False)
-    # print(data_Type_Counts)
     return data_Type_Counts
 
 #绘图分析小说类型
@@ -975,14 +974,12 @@ def save_book_text(j1,j,save_path='./fanqie/'):
 
 #主函数路口
 if __name__ == '__main__':
-
-    urli = 'https://fanqienovel.com/api/author/misc/top_book_list/v1/?limit=200&offset=0&a_bogus=QysQfcZTMsm17jVEl7ke9aJm32R0YWR-gZEFKy4r-0Ll'
     while True:
         n1 = int(input("请输入功能序号：\n"
                       "1.分析当代书友的阅读风格\n"
                       "2.查看书库排行榜\n"
                       "3.一键爬取功能\n"
-                      " 其他数字.退出\n"))
+                      " 其他.退出本程序\n"))
         if n1 == 1:
             urli = 'https://fanqienovel.com/api/author/misc/top_book_list/v1/?limit=200&offset=0&a_bogus=QysQfcZTMsm17jVEl7ke9aJm32R0YWR-gZEFKy4r-0Ll'
             book_dict= get_book_dict(urli)
@@ -998,8 +995,8 @@ if __name__ == '__main__':
                   "2.番茄最热榜\n"
                   "3.番茄最新榜\n"
                   "4.番茄字数榜\n"
-                  "其他数字.退出\n")
-            page_count = input("请输入要查看的书籍数量：")
+                  "其他.返回上一层\n")
+            page_count = input("请输入要查看的书籍数量：\n")
             if n2 == '1':
                 #番茄巅峰榜
                 urli = 'https://fanqienovel.com/api/author/misc/top_book_list/v1/?limit='+page_count+'&offset=0&a_bogus=QysQfcZTMsm17jVEl7ke9aJm32R0YWR-gZEFKy4r-0Ll'
@@ -1017,10 +1014,10 @@ if __name__ == '__main__':
                 urli = 'https://fanqienovel.com/api/author/library/book_list/v0/?page_count='+page_count+'&page_index=0&gender=-1&category_id=-1&creation_status=-1&word_count=-1&book_type=-1&sort=2&a_bogus=my4O6cZOMsm1vE3kYhke9CUmDhR0YWR6gZENKswpR0qH'
                 j1 = get_request(urli, headers,dict_data_phb)
             else :
-                exit()
+                continue
             show_books(j1,page_count)
             j = input("请输入要下载的书籍序号：")
-            k1 = input("请输入存储路径回车键默认：")
+            k1 = input("请输入存储路径回车键默认：\n")
             if k1 != '':
                 save_path = k1
             jc = int(j)
@@ -1040,8 +1037,8 @@ if __name__ == '__main__':
                           "2.番茄最热榜\n"
                           "3.番茄最新榜\n"
                           "4.番茄字数榜\n"
-                            "其他数字退出\n")
-            k2 = input("请输入存储路径回车键默认：")
+                            "其他返回上一层\n")
+            k2 = input("请输入存储路径回车键默认：\n")
             if k2 != '':
                 save_path = k2
             if n4 == '1':
@@ -1067,4 +1064,5 @@ if __name__ == '__main__':
             else:
                 continue
         else:
+            input("输入任意键退出")
             exit()
