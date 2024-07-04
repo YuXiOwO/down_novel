@@ -863,7 +863,6 @@ def get_request(url,headers,dict_data):
 #展示排行榜上的书籍
 def show_books(j1,page_count):
     # print(jsonpath(j1, '$..book_list[*].book_name'))
-    print(j1)
     page_count = int(page_count)
     for i in range(0,page_count):
         print("序号：",i+1)
@@ -1020,7 +1019,7 @@ def ui2(save_path='./fanqie/'):
     else:
         return 1
     show_books(j1, page_count)
-    j = input("请输入要下载的书籍序号：")
+    j = input("请输入要下载的书籍序号(0表示不下载)：")
     k1 = input("请输入存储路径回车键默认：\n")
     if k1 != '':
         save_path = k1
@@ -1029,7 +1028,7 @@ def ui2(save_path='./fanqie/'):
         save_book_img(j1, jc - 1, save_path)
         # print(j1)
         save_book_text(j1, jc - 1, save_path)
-    elif int(j) == '0':
+    elif int(j) == 0:
         return 1
     else:
         print("输入错误！")
@@ -1075,7 +1074,8 @@ def ui4(save_path='./fanqie/'):
     name = input("请输入小说名称：\n")
     if k1 != '':
         save_path = k1
-    font_path = 'C:/Windows/Fonts/FZSTK.TTF'
+        #自定义字体路径
+    font_path = 'C:/Windows/Fonts/STXINWEI.TTF'
     try:
         # 读取文本文件内容
         with open(save_path + name + '.txt', 'r', encoding='utf-8') as file:
@@ -1114,7 +1114,7 @@ def ui4(save_path='./fanqie/'):
         plt.show()
 
         # 可选择保存图片
-        # wc.to_file(save_path + r'\beautifulcloud.png')
+        wc.to_file(save_path + name+'词云图.png')
     except FileNotFoundError:
         print(f"文件未找到，请检查路径：{save_path}")
     except Exception as e:
